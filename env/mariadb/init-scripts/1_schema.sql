@@ -1,0 +1,8 @@
+CREATE DATABASE IF NOT EXISTS my_database;
+USE my_database;
+
+CREATE TABLE IF NOT EXISTS mytable (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pro VARCHAR(11) UNIQUE NOT NULL,
+    secondhalf VARCHAR(6) NOT NULL
+);

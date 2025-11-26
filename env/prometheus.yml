@@ -1,0 +1,108 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'codelab-monitor'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # - job_name: 'prometheus'
+
+  #   # Override the global default and scrape targets from this job every 5 seconds.
+  #   scrape_interval: 5s
+
+  #   static_configs:
+      # - targets: ['localhost:9090']
+
+  - job_name: 'resource-vertx'
+    metrics_path: '/q/metrics'
+    scrape_interval: 3s
+    static_configs:
+      - targets: ['resource-vertx:9080']
+        labels:
+          application: 'resource-vertx'
+
+  # - job_name: 'resource-spring-boot-3-mvc'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['resource-spring-boot-3-mvc:9980']
+  #       labels:
+  #         application: 'resource-spring-boot-3-mvc'
+  # - job_name: 'resource-quarkus'
+  #   metrics_path: '/q/metrics'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['resource-quarkus:9984']
+  #       labels:
+  #         application: 'resource-quarkus'
+
+  # - job_name: 'proxy-spring-boot-3-mvc-restclient'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-mvc-restclient:8070']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-mvc-restclient'
+  # - job_name: 'proxy-spring-boot-3-mvc-restclient-async'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-mvc-restclient-async:8080']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-mvc-restclient-async'          
+  # - job_name: 'proxy-spring-boot-3-mvc-feign'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-mvc-feign:8081']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-mvc-feign'
+  # - job_name: 'proxy-spring-boot-3-webflux'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-webflux:8082']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-webflux'
+  # - job_name: 'proxy-spring-boot-3-mvc-webclient-async'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-mvc-webclient-async:8083']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-mvc-webclient-async'   
+  # - job_name: 'proxy-spring-boot-3-mvc-restclient-jdk21-vt'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-mvc-restclient-jdk21-vt:8084']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-mvc-restclient-jdk21-vt'
+  # - job_name: 'proxy-spring-boot-3-mvc-restclient-async-jdk21-vt'
+  #   metrics_path: '/actuator/prometheus'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-spring-boot-3-mvc-restclient-async-jdk21-vt:8085']
+  #       labels:
+  #         application: 'proxy-spring-boot-3-mvc-restclient-async-jdk21-vt'
+  # - job_name: 'proxy-quarkus'
+  #   metrics_path: '/q/metrics'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-quarkus:8090']
+  #       labels:
+  #         application: 'proxy-quarkus'
+  # - job_name: 'proxy-quarkus-jdk21-vt'
+  #   metrics_path: '/q/metrics'
+  #   scrape_interval: 3s
+  #   static_configs:
+  #     - targets: ['proxy-quarkus-jdk21-vt:8091']
+  #       labels:
+  #         application: 'proxy-quarkus-jdk21-vt'
+
+

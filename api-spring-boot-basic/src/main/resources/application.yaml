@@ -1,0 +1,65 @@
+
+spring:
+  application:
+    name: '@project.artifactId@'
+  datasource:
+    url: jdbc:postgresql://localhost:5432/my_database
+    username: myuser
+    password: my_awesome_password
+
+server:
+  tomcat:
+    threads:
+      max: 50
+      min-spare: 5
+      max-queue-capacity: 10
+
+rest:
+  client:
+    url: ${RESOURCE_URL:http://localhost:9080}
+
+info:
+  app:
+    name: '@project.artifactId@'
+    maven:
+      name: '@project.name@'
+      groupId: '@project.groupId@'
+      artifactId: '@project.artifactId@'
+      version: '@project.version@'
+      description:  '@project.description@'
+      encoding: '@project.build.sourceEncoding@'
+      java:
+        source: '@java.version@'
+        target: '@java.version@'
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+    info:
+      env:
+        enabled: true
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  health:
+    show-details: always
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+          client:
+            requests: true

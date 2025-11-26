@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS mytable (
+    id SERIAL PRIMARY KEY,
+    pro VARCHAR(11) UNIQUE NOT NULL,
+    firsthalf VARCHAR(5) NOT NULL
+);

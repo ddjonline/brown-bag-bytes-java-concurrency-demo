@@ -1,0 +1,109 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./env/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - poc-concurrency-testing-network
+    ports:
+      - "9090:9090"
+    command:
+      - --web.enable-remote-write-receiver
+      - --enable-feature=native-histograms
+      - --config.file=/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    networks:
+      - poc-concurrency-testing-network
+    ports:
+      - 3000:3000
+    env_file:
+      - ./env/grafana.env
+    volumes:
+      - ./env/grafana:/etc/grafana/provisioning/
+  # oracle-db:
+  #   image: doctorkirk/oracle-19c
+  #   container_name: oracle-db-container
+  #   ports:
+  #     - "1521:1521" # Oracle Listener port
+  #     - "5500:5500" # Oracle Enterprise Manager Express port
+  #   networks:
+  #     - poc-concurrency-testing-network
+  #   environment:
+  #     ORACLE_SID: ORCL # System Identifier
+  #     ORACLE_PDB: ORCLPDB1 # Pluggable Database name
+  #     ORACLE_PWD: my_awesome_password # Set a strong password
+  #     # ORACLE_CHARACTERSET: AL32UTF8
+  #   volumes:
+  #     - ./env/oracle/init-scripts/create_schema.sql:/opt/oracle/scripts/setup/create_schema.sql
+  #     - ./env/oracle/init-scripts/seed_data.sql:/opt/oracle/scripts/setup/seed_data.sql
+  #     # - /path/to/your/local/oradata:/opt/oracle/oradata # Uncomment if the data should be persistent
+  #   shm_size: '1g' # bare minimum memory per oracle docs
+  #   cpu_count: 2
+  #   healthcheck:
+  #     test: ["CMD", "sqlplus", "-L", "sys/my_awesome_password@ORCLPDB1", "as", "sysdba", "-S", "@healthcheck.sql"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: my_awesome_password
+    volumes:
+      - ./env/postgres/init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - poc-concurrency-testing-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  maria-db:
+    image: mariadb:latest
+    container_name: maria-db
+    environment:
+      MARIADB_ROOT_PASSWORD: my_awesome_root_password
+      MARIADB_DATABASE: my_database # This can be the same as in schema.sql or a different one
+      MARIADB_USER: user
+      MARIADB_PASSWORD: my_awesome_password
+    ports:
+      - "3306:3306"
+    networks:
+      - poc-concurrency-testing-network
+    volumes:
+      - ./env/mariadb/init-scripts/1_schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./env/mariadb/init-scripts/2_seed_data.sql:/docker-entrypoint-initdb.d/2_seed_data.sql
+      # - ./env/mariadb/mariadb_data:/var/lib/mysql # Optional: for persistent data storage
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"] # Simple connectivity check
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s # Give the database time to initialize
+
+
+  resource-vertx:
+    image: resource-vertx
+    build: ./resource-vertx
+    ports:
+      - "9080:8080"
+    networks:
+      - poc-concurrency-testing-network
+    depends_on:
+      - maria-db
+    cpu_count: 1
+
+
+
+
+networks:
+  poc-concurrency-testing-network:
+    driver: bridge
