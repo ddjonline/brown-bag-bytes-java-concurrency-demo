@@ -23,33 +23,10 @@ services:
       - ./env/grafana.env
     volumes:
       - ./env/grafana:/etc/grafana/provisioning/
-  # oracle-db:
-  #   image: doctorkirk/oracle-19c
-  #   container_name: oracle-db-container
-  #   ports:
-  #     - "1521:1521" # Oracle Listener port
-  #     - "5500:5500" # Oracle Enterprise Manager Express port
-  #   networks:
-  #     - poc-concurrency-testing-network
-  #   environment:
-  #     ORACLE_SID: ORCL # System Identifier
-  #     ORACLE_PDB: ORCLPDB1 # Pluggable Database name
-  #     ORACLE_PWD: my_awesome_password # Set a strong password
-  #     # ORACLE_CHARACTERSET: AL32UTF8
-  #   volumes:
-  #     - ./env/oracle/init-scripts/create_schema.sql:/opt/oracle/scripts/setup/create_schema.sql
-  #     - ./env/oracle/init-scripts/seed_data.sql:/opt/oracle/scripts/setup/seed_data.sql
-  #     # - /path/to/your/local/oradata:/opt/oracle/oradata # Uncomment if the data should be persistent
-  #   shm_size: '1g' # bare minimum memory per oracle docs
-  #   cpu_count: 2
-  #   healthcheck:
-  #     test: ["CMD", "sqlplus", "-L", "sys/my_awesome_password@ORCLPDB1", "as", "sysdba", "-S", "@healthcheck.sql"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  postgres-db:
+  postgres:
     image: postgres:latest
-    container_name: postgres-db
+    hostname: postgres
+    container_name: postgres
     environment:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
@@ -66,9 +43,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
-  maria-db:
+  maria:
     image: mariadb:latest
-    container_name: maria-db
+    hostname: maria
+    container_name: maria
     environment:
       MARIADB_ROOT_PASSWORD: my_awesome_root_password
       MARIADB_DATABASE: my_database # This can be the same as in schema.sql or a different one
@@ -92,17 +70,35 @@ services:
 
   resource-vertx:
     image: resource-vertx
+    container_name: resource-vertx
+    hostname: resource-vertx
     build: ./resource-vertx
     ports:
       - "9080:8080"
     networks:
       - poc-concurrency-testing-network
     depends_on:
-      - maria-db
+      - maria
     cpu_count: 1
 
-
-
+  api-spring-boot-basic:
+    image: api-spring-boot-basic
+    container_name: api-spring-boot-basic
+    hostname: api-spring-boot-basic
+    build: ./api-spring-boot-basic
+    ports:
+      - "8081:8080"
+    networks:
+      - poc-concurrency-testing-network
+    depends_on:
+      - resource-vertx
+      - postgres
+    cpu_count: 1
+    environment:
+      - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - POSTGRESQL_USER=myuser
+      - POSTGRESQL_PWD=my_awesome_password
+      - RESOURCE_URL=http://resource-vertx:8080 # note: the port is the internal container port not the externally exposed/mapped port
 
 networks:
   poc-concurrency-testing-network:
