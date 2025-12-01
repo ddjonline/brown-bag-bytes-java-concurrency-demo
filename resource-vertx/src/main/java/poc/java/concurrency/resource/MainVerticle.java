@@ -2,12 +2,14 @@ package poc.java.concurrency.resource;
 
 import org.owasp.encoder.Encode;
 
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -69,20 +71,39 @@ public class MainVerticle extends AbstractVerticle {
                     RowSet<Row> rows = asyncResult.result();
 
                     var iter = rows.iterator();
-                    var row = iter.next();
-                    var secondHalf = row.getString("secondhalf");
+                    if (iter.hasNext()) {
+                      var row = iter.next();
+                      var secondHalf = row.getString("secondhalf");
 
-                    routingContext.response()
-                        .putHeader("content-type", "text/plain")
-                        .end(secondHalf);
+                      routingContext.response()
+                          .putHeader("content-type", "text/plain")
+                          .end(secondHalf);
+                    } else {
+                      routingContext.fail(404);
+                    }
                   } else {
-                    routingContext.fail(400);
+                    routingContext.fail(500);
                   }
                 })
                 .onFailure(throwable -> {
                   routingContext.fail(500);
                 });
           });
+
+          router.errorHandler(404, routingContext -> {
+            routingContext.response().setStatusCode(404).end("Item not found!");
+          });
+
+          router.errorHandler(500, routingContext -> {
+            routingContext.response().setStatusCode(500).end("Something went wrong on our end.");
+          });
+
+          var allowedOriginsRegex = "^(http|https)://localhost:\\d+|^(http|https)://api-.*:\\d+";
+          var corsHandler = CorsHandler.create()
+                              .addOriginWithRegex(allowedOriginsRegex)
+                              .allowedMethod(HttpMethod.GET)
+                              .allowedMethod(HttpMethod.OPTIONS);
+          router.route().handler(corsHandler);
 
           vertx.createHttpServer()
               .requestHandler(router)
