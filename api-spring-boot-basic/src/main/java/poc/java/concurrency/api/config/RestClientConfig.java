@@ -1,5 +1,6 @@
 package poc.java.concurrency.api.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
@@ -14,6 +15,7 @@ public class RestClientConfig {
     this.restClientProperties = restClientProperties;
   }
 
+  @Bean
   public RestClient myRestClient(RestClientProperties restClientProperties) {
     return RestClient.builder()
         .baseUrl(restClientProperties.url()) 

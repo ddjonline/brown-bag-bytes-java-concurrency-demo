@@ -3,9 +3,13 @@ spring:
   application:
     name: '@project.artifactId@'
   datasource:
-    url: jdbc:postgresql://localhost:5432/my_database
-    username: myuser
-    password: my_awesome_password
+    url: ${POSTGRESQL_URL:jdbc:postgresql://localhost:5432/mydatabase}
+    username: ${POSTGRESQL_USER:myuser}
+    password: ${POSTGRESQL_PWD:my_awesome_password}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   tomcat:
