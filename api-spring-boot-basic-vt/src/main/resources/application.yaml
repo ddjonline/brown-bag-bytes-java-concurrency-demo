@@ -1,0 +1,80 @@
+
+spring:
+  threads:
+    virtual:
+      enabled: true
+  application:
+    name: '@project.artifactId@'
+  datasource:
+    url: ${POSTGRESQL_URL:jdbc:postgresql://localhost:5432/mydatabase}
+    username: ${POSTGRESQL_USER:myuser}
+    password: ${POSTGRESQL_PWD:my_awesome_password}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 30000
+      max-lifetime: 1800000 
+      connection-test-query: SELECT 1
+      pool-name: PostgresPool
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  tomcat:
+    threads:
+      max: 50
+      min-spare: 5
+      max-queue-capacity: 10
+
+rest:
+  client:
+    url: ${RESOURCE_URL:http://localhost:9080}
+
+info:
+  app:
+    name: '@project.artifactId@'
+    maven:
+      name: '@project.name@'
+      groupId: '@project.groupId@'
+      artifactId: '@project.artifactId@'
+      version: '@project.version@'
+      description:  '@project.description@'
+      encoding: '@project.build.sourceEncoding@'
+      java:
+        source: '@java.version@'
+        target: '@java.version@'
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+    prometheus:
+      access: read-only
+    info:
+      env:
+        enabled: true
+      access: read-only
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  health:
+    show-details: always
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+          client:
+            requests: true
