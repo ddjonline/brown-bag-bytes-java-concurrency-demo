@@ -100,6 +100,44 @@ services:
       - POSTGRESQL_PWD=my_awesome_password
       - RESOURCE_URL=http://resource-vertx:8080 # note: the port is the internal container port not the externally exposed/mapped port
 
+  api-spring-boot-basic-vt:
+    image: api-spring-boot-basic-vt
+    container_name: api-spring-boot-basic-vt
+    hostname: api-spring-boot-basic-vt
+    build: ./api-spring-boot-basic-vt
+    ports:
+      - "8082:8080"
+    networks:
+      - poc-concurrency-testing-network
+    depends_on:
+      - resource-vertx
+      - postgres
+    cpu_count: 1
+    environment:
+      - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - POSTGRESQL_USER=myuser
+      - POSTGRESQL_PWD=my_awesome_password
+      - RESOURCE_URL=http://resource-vertx:8080 # note: the port is the internal container port not the externally exposed/mapped port
+
+  api-spring-boot-async:
+    image: api-spring-boot-async
+    container_name: api-spring-boot-async
+    hostname: api-spring-boot-async
+    build: ./api-spring-boot-async
+    ports:
+      - "8083:8080"
+    networks:
+      - poc-concurrency-testing-network
+    depends_on:
+      - resource-vertx
+      - postgres
+    cpu_count: 1
+    environment:
+      - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - POSTGRESQL_USER=myuser
+      - POSTGRESQL_PWD=my_awesome_password
+      - RESOURCE_URL=http://resource-vertx:8080 # note: the port is the internal container port not the externally exposed/mapped port
+
 networks:
   poc-concurrency-testing-network:
     driver: bridge
