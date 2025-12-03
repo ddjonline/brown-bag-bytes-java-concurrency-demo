@@ -76,7 +76,7 @@ export const options = {
       preAllocatedVUs: '2',
       maxVUs: '2', // maxx virtual users at a given time
       tags: { request_type: 'healthcheck_sb_basic' },
-      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8081',  URI: '/actuator/liveness' }
+      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8081',  URI: '/actuator/health/liveness' }
     },
     healthcheck_sb_basic_vt: {
       executor: 'constant-arrival-rate',
@@ -89,7 +89,7 @@ export const options = {
       preAllocatedVUs: '2',
       maxVUs: '2', // maxx virtual users at a given time
       tags: { request_type: 'healthcheck_sb_basic_vt' },
-      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8082',  URI: '/actuator/liveness' }
+      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8082',  URI: '/actuator/health/liveness' }
     },
     healthcheck_sb_async: {
       executor: 'constant-arrival-rate',
@@ -102,7 +102,7 @@ export const options = {
       preAllocatedVUs: '2',
       maxVUs: '2', // maxx virtual users at a given time
       tags: { request_type: 'healthcheck_sb_async' },
-      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8083',  URI: '/actuator/liveness' }
+      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8083',  URI: '/actuator/health/liveness' }
     },
   },
   summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)', 'count'],
