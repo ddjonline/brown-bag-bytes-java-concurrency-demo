@@ -93,8 +93,10 @@ services:
     networks:
       - poc-concurrency-testing-network
     depends_on:
-      - resource-vertx
-      - postgres
+      resource-vertx:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     cpu_count: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
@@ -117,8 +119,10 @@ services:
     networks:
       - poc-concurrency-testing-network
     depends_on:
-      - resource-vertx
-      - postgres
+      resource-vertx:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     cpu_count: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
@@ -141,8 +145,10 @@ services:
     networks:
       - poc-concurrency-testing-network
     depends_on:
-      - resource-vertx
-      - postgres
+      resource-vertx:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     cpu_count: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
