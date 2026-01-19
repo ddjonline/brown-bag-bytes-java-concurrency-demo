@@ -32,12 +32,14 @@ public class ProcessService {
     return combinedFuture;
   }
 
+  @Async("taskExecutor")
   private CompletableFuture<FirstHalfEntityProjection> getFirstHalf(String value) {
     var encodedValue = Encode.forJava(value);
     var firstHalfProjectionFuture = firstHalfRepository.findFirstHalfEntityProjectionByPro(encodedValue);
     return firstHalfProjectionFuture;
   }
 
+  @Async("taskExecutor")
   private CompletableFuture<String> getSecondHalf(String value) {
     var encodedValue = Encode.forUriComponent(value);
     var uri = String.format("/lookup/%s", encodedValue);
