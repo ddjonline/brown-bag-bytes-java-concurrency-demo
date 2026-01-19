@@ -24,8 +24,9 @@ spring:
 
 server:
   tomcat:
+    connection-timeout: 5s
     threads:
-      max: 50
+      max: 200
       min-spare: 5
       max-queue-capacity: 10
 
