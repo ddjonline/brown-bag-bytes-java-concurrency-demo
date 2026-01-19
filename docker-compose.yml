@@ -187,6 +187,32 @@ services:
       timeout: 10s
       retries: 5
 
+  api-spring-boot-v4-sc:
+    image: api-spring-boot-v4-sc
+    container_name: api-spring-boot-v4-sc
+    hostname: api-spring-boot-v4-sc
+    build: ./api-spring-boot-v4-sc
+    ports:
+      - "8085:8080"
+    networks:
+      - poc-concurrency-testing-network
+    depends_on:
+      resource-vertx:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    cpu_count: 1
+    environment:
+      - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
+      - POSTGRESQL_USER=myuser
+      - POSTGRESQL_PWD=my_awesome_password
+      - RESOURCE_URL=http://resource-vertx:8080 # note: the port is the internal container port not the externally exposed/mapped port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 networks:
   poc-concurrency-testing-network:
     driver: bridge
