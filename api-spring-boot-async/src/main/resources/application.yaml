@@ -1,5 +1,8 @@
 
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: '@project.artifactId@'
   datasource:
