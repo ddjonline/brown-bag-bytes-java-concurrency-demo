@@ -1,5 +1,7 @@
-package poc.java.concurrency.resource;
+package poc.java.concurrency.api;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 import org.owasp.encoder.Encode;
@@ -10,6 +12,8 @@ import io.vertx.micrometer.MicrometerMetricsOptions;
 import io.vertx.micrometer.PrometheusScrapingHandler;
 import io.vertx.micrometer.VertxPrometheusOptions;
 import io.vertx.micrometer.backends.BackendRegistries;
+import io.vertx.pgclient.PgBuilder;
+import io.vertx.pgclient.PgConnectOptions;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
@@ -19,6 +23,7 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -26,17 +31,16 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
-import io.vertx.mysqlclient.MySQLBuilder;
-import io.vertx.mysqlclient.MySQLConnectOptions;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.SqlClient;
 import io.vertx.sqlclient.Tuple;
 
 public class MainVerticle extends AbstractVerticle {
 
   private SqlClient dbClient;
+  private WebClient webClient;
   private HttpServer httpServer;
   private static final Logger logger = Logger.getLogger(MainVerticle.class.getName());
 
@@ -59,52 +63,51 @@ public class MainVerticle extends AbstractVerticle {
     retriever.getConfig()
         .onSuccess(config -> {
 
-          var connectOptions = new MySQLConnectOptions()
-              .setHost(config.getString("mariadb.host"))
-              .setPort(config.getInteger("mariadb.port"))
-              .setDatabase(config.getString("mariadb.database"))
-              .setUser(config.getString("mariadb.user"))
-              .setPassword(config.getString("mariadb.password"));
+          // Set up Postgres DB Connection
+          var postgresDBConnectionOptions = new PgConnectOptions()
+              .setPort(config.getInteger("postgres.port"))
+              .setHost(config.getString("postgres.host"))
+              .setDatabase(config.getString("postgres.database"))
+              .setUser(config.getString("postgres.user"))
+              .setPassword(config.getString("postgres.password"));
 
           var poolOptions = new PoolOptions().setMaxSize(5);
 
-          dbClient = MySQLBuilder
+          dbClient = PgBuilder
               .client()
-              .using(vertx)
               .with(poolOptions)
-              .connectingTo(connectOptions)
+              .connectingTo(postgresDBConnectionOptions)
+              .using(vertx)
               .build();
 
+          // Set up the HTTP WebClient for Lookup
+          webClient = WebClient.create(vertx);
+
+          // Set up HTTP Server
           var router = Router.router(vertx);
 
           router.route("/metrics").handler(PrometheusScrapingHandler.create());
 
           router.get("/lookup/:value").handler(routingContext -> {
             var value = Encode.forUriComponent(routingContext.pathParam("value"));
+            // fetch the first half
+            var firstHalfFutrue = getFirstHalf(value);
 
-            dbClient
-                .preparedQuery("SELECT secondhalf from mytable where pro=?")
-                .execute(Tuple.of(value))
-                .onComplete(asyncResult -> {
-                  if (asyncResult.succeeded()) {
-                    RowSet<Row> rows = asyncResult.result();
+            // fetch the second half
+            var secondHalfFuture = getSecondHalf(value, config);
 
-                    var iter = rows.iterator();
-                    if (iter.hasNext()) {
-                      var row = iter.next();
-                      var secondHalf = row.getString("secondhalf");
+            // combine the results and return the routing context
+            Future.all(List.of(firstHalfFutrue, secondHalfFuture))
+                .onSuccess(results -> {
+                  var firstHalf = results.resultAt(0);
+                  var secondHalf = results.resultAt(1);
 
-                      routingContext.response()
-                          .putHeader("content-type", "text/plain")
-                          .end(secondHalf);
-                    } else {
-                      routingContext.fail(404);
-                    }
-                  } else {
-                    routingContext.fail(500);
-                  }
-                })
-                .onFailure(throwable -> {
+                  var result = String.format("%s%s", firstHalf, secondHalf);
+
+                  routingContext.response()
+                      .putHeader("content-type", "text/plain")
+                      .end(result);
+                }).onFailure(throwable -> {
                   routingContext.fail(500);
                 });
           });
@@ -132,6 +135,37 @@ public class MainVerticle extends AbstractVerticle {
                 startPromise.complete();
               })
               .onFailure(startPromise::fail);
+        });
+  }
+
+  private Future<String> getFirstHalf(String value) {
+    Promise<String> promise = Promise.promise();
+    String sql = "SELECT firsthalf from mytable where pro = $1";
+
+    dbClient.preparedQuery(sql).execute(Tuple.of(value))
+        .onSuccess(rowSet -> {
+          if (rowSet.iterator().hasNext()) {
+            Row row = rowSet.iterator().next();
+            var firstHalf = row.getString("firsthalf");
+            promise.complete(firstHalf); // Complete the promise with the result
+          } else {
+            promise.fail(new NoSuchElementException("firstHalf not found"));
+          }
+        })
+        .onFailure(promise::fail); // Fail the promise if the DB operation fails
+
+    return promise.future();
+  }
+
+  private Future<String> getSecondHalf(String value, JsonObject config) {
+    return webClient.get(config.getInteger("lookup.port"), config.getString("lookup.host"), "/lookup/" + value)
+        .send()
+        .compose(response -> {
+          if (response.statusCode() == 200) {
+            return Future.succeededFuture(response.bodyAsString());
+          } else {
+            return Future.failedFuture("API request failed: " + response.statusCode());
+          }
         });
   }
 

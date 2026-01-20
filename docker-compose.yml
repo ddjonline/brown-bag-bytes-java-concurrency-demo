@@ -213,6 +213,22 @@ services:
       timeout: 10s
       retries: 5
 
+  api-vertx:
+    image: api-vertx
+    container_name: api-vertx
+    hostname: api-vertx
+    build: ./api-vertx
+    ports:
+      - "8090:8080"
+    networks:
+      - poc-concurrency-testing-network
+    depends_on:
+      resource-vertx:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    cpu_count: 1
+
 networks:
   poc-concurrency-testing-network:
     driver: bridge
