@@ -27,7 +27,8 @@ public class HttpClientConfig {
   }
 
   @Bean
-  HttpServiceProxyFactory proxyFactory(RestClient.Builder clientBuilder, RestClientProperties restClientProperties) {
+  HttpServiceProxyFactory proxyFactory(RestClient.Builder clientBuilder,
+      RestClientProperties restClientProperties) {
     RestClient client = clientBuilder.baseUrl(restClientProperties.url()).build();
     return HttpServiceProxyFactory.builderFor(RestClientAdapter.create(client)).build();
   }
