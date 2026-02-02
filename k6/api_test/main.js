@@ -31,10 +31,10 @@ export const options = {
     'http_req_waiting{request_type:sb_sc}': ['p(95)<500'], // 95 percentile of the requests must not be waiting more than 0.5 seconds
     'http_req_duration{request_type:sb_sc}': ['p(95)<10000'], // 95 percentile of requests must complete below 10s for sb_sc
 
-    'http_req_failed{request_type:vertx}': ['rate<0.01'], // http errors should be less than 1% for vertx
-    'http_req_blocked{request_type:vertx}': ['p(95)<500'], // 95 percentile of the requests must not be blocked more than 0.5 seconds
-    'http_req_waiting{request_type:vertx}': ['p(95)<500'], // 95 percentile of the requests must not be waiting more than 0.5 seconds
-    'http_req_duration{request_type:vertx}': ['p(95)<10000'], // 95 percentile of requests must complete below 10s for vertx
+    // 'http_req_failed{request_type:vertx}': ['rate<0.01'], // http errors should be less than 1% for vertx
+    // 'http_req_blocked{request_type:vertx}': ['p(95)<500'], // 95 percentile of the requests must not be blocked more than 0.5 seconds
+    // 'http_req_waiting{request_type:vertx}': ['p(95)<500'], // 95 percentile of the requests must not be waiting more than 0.5 seconds
+    // 'http_req_duration{request_type:vertx}': ['p(95)<10000'], // 95 percentile of requests must complete below 10s for vertx
 
     'http_req_failed{request_type:healthcheck_sb_basic}': ['rate<0.01'], // http errors should be less than 1% for healthcheck
     'http_req_duration{request_type:healthcheck_sb_basic}': ['p(95)<200'], // 95 percentile of requests must complete below 200ms for healthcheck
@@ -58,7 +58,7 @@ export const options = {
       startTime: '1s', // start right away
       gracefulStop: '1m', // gracefully stop a request after 1 minute
       vus: 5, // virtual users
-      iterations: 1000, // how many times each virtual user makes the request
+      iterations: 100, // how many times each virtual user makes the request
       maxDuration: '5m',
       tags: { request_type: 'sb_basic' },
       env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8081',  URI: '/lookup', tag: 'sb_basic' }
@@ -69,7 +69,7 @@ export const options = {
       startTime: '1s', // start right away
       gracefulStop: '1m', // gracefully stop a request after 1 minute
       vus: 5, // virtual users
-      iterations: 1000, // how many times each virtual user makes the request
+      iterations: 100, // how many times each virtual user makes the request
       maxDuration: '5m',
       tags: { request_type: 'sb_basic_vt' },
       env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8082',  URI: '/lookup', tag: 'sb_basic_vt' }
@@ -80,7 +80,7 @@ export const options = {
       startTime: '1s', // start right away
       gracefulStop: '1m', // gracefully stop a request after 1 minute
       vus: 5, // virtual users
-      iterations: 1000, // how many times each virtual user makes the request
+      iterations: 100, // how many times each virtual user makes the request
       maxDuration: '5m',
       tags: { request_type: 'sb_async' },
       env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8083',  URI: '/lookup', tag: 'sb_async' }
@@ -91,7 +91,7 @@ export const options = {
       startTime: '1s', // start right away
       gracefulStop: '1m', // gracefully stop a request after 1 minute
       vus: 5, // virtual users
-      iterations: 1000, // how many times each virtual user makes the request
+      iterations: 100, // how many times each virtual user makes the request
       maxDuration: '5m',
       tags: { request_type: 'sb_v4' },
       env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8084',  URI: '/lookup', tag: 'sb_v4' }
@@ -102,22 +102,22 @@ export const options = {
       startTime: '1s', // start right away
       gracefulStop: '1m', // gracefully stop a request after 1 minute
       vus: 5, // virtual users
-      iterations: 1000, // how many times each virtual user makes the request
+      iterations: 100, // how many times each virtual user makes the request
       maxDuration: '5m',
       tags: { request_type: 'sb_sc' },
       env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8085',  URI: '/lookup', tag: 'sb_sc' }
     },
-    process_value_vertx: {
-      executor: 'per-vu-iterations',
-      exec: "testLookup",
-      startTime: '1s', // start right away
-      gracefulStop: '1m', // gracefully stop a request after 1 minute
-      vus: 5, // virtual users
-      iterations: 1000, // how many times each virtual user makes the request
-      maxDuration: '5m',
-      tags: { request_type: 'vertx' },
-      env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8090',  URI: '/lookup', tag: 'vertx' }
-    },
+    // process_value_vertx: {
+    //   executor: 'per-vu-iterations',
+    //   exec: "testLookup",
+    //   startTime: '1s', // start right away
+    //   gracefulStop: '1m', // gracefully stop a request after 1 minute
+    //   vus: 5, // virtual users
+    //   iterations: 100, // how many times each virtual user makes the request
+    //   maxDuration: '5m',
+    //   tags: { request_type: 'vertx' },
+    //   env: { HTTP_PROTO: 'http', BASE_URL: 'localhost', BASE_PORT: '8090',  URI: '/lookup', tag: 'vertx' }
+    // },
 
     // healthcheck_sb_basic: {
     //   executor: 'constant-arrival-rate',

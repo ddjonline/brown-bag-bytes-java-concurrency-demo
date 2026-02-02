@@ -1,29 +1,29 @@
 services:
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    volumes:
-      - ./env/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - poc-concurrency-testing-network
-    ports:
-      - "9090:9090"
-    command:
-      - --web.enable-remote-write-receiver
-      - --enable-feature=native-histograms
-      - --config.file=/etc/prometheus/prometheus.yml
-  grafana:
-    image: grafana/grafana-oss:latest
-    container_name: grafana
-    networks:
-      - poc-concurrency-testing-network
-    ports:
-      - 3000:3000
-    env_file:
-      - ./env/grafana.env
-    volumes:
-      - ./env/grafana:/etc/grafana/provisioning/
-      - grafana_data:/var/lib/grafana
+  # prometheus:
+  #   image: prom/prometheus
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./env/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   networks:
+  #     - poc-concurrency-testing-network
+  #   ports:
+  #     - "9090:9090"
+  #   command:
+  #     - --web.enable-remote-write-receiver
+  #     - --enable-feature=native-histograms
+  #     - --config.file=/etc/prometheus/prometheus.yml
+  # grafana:
+  #   image: grafana/grafana-oss:latest
+  #   container_name: grafana
+  #   networks:
+  #     - poc-concurrency-testing-network
+  #   ports:
+  #     - 3000:3000
+  #   env_file:
+  #     - ./env/grafana.env
+  #   volumes:
+  #     - ./env/grafana:/etc/grafana/provisioning/
+  #     - grafana_data:/var/lib/grafana
   postgres:
     image: postgres:latest
     hostname: postgres
@@ -81,7 +81,7 @@ services:
       - poc-concurrency-testing-network
     depends_on:
       - maria
-    cpu_count: 1
+    cpus: 1
 
   api-spring-boot-basic:
     image: api-spring-boot-basic
@@ -97,7 +97,7 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    cpu_count: 1
+    cpus: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
       - POSTGRESQL_USER=myuser
@@ -123,7 +123,7 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    cpu_count: 1
+    cpus: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
       - POSTGRESQL_USER=myuser
@@ -149,7 +149,7 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    cpu_count: 1
+    cpus: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
       - POSTGRESQL_USER=myuser
@@ -175,7 +175,7 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    cpu_count: 1
+    cpus: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
       - POSTGRESQL_USER=myuser
@@ -201,7 +201,7 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    cpu_count: 1
+    cpus: 1
     environment:
       - POSTGRESQL_URL=jdbc:postgresql://postgres:5432/mydatabase
       - POSTGRESQL_USER=myuser
@@ -213,21 +213,21 @@ services:
       timeout: 10s
       retries: 5
 
-  api-vertx:
-    image: api-vertx
-    container_name: api-vertx
-    hostname: api-vertx
-    build: ./api-vertx
-    ports:
-      - "8090:8080"
-    networks:
-      - poc-concurrency-testing-network
-    depends_on:
-      resource-vertx:
-        condition: service_started
-      postgres:
-        condition: service_healthy
-    cpu_count: 1
+  # api-vertx:
+  #   image: api-vertx
+  #   container_name: api-vertx
+  #   hostname: api-vertx
+  #   build: ./api-vertx
+  #   ports:
+  #     - "8090:8080"
+  #   networks:
+  #     - poc-concurrency-testing-network
+  #   depends_on:
+  #     resource-vertx:
+  #       condition: service_started
+  #     postgres:
+  #       condition: service_healthy
+  #   cpus: 1
 
 networks:
   poc-concurrency-testing-network:
