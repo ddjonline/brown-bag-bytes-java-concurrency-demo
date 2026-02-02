@@ -2,19 +2,20 @@ package poc.java.concurrency.api.service;
 
 import org.owasp.encoder.Encode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
+import poc.java.concurrency.api.client.SecondHalfFeignClient;
 import poc.java.concurrency.api.persistence.repo.FirstHalfRepository;
 
 @Service
 public class ProcessService {
   
   private final FirstHalfRepository firstHalfRepository;
-  private final RestClient restClient;
+  private final SecondHalfFeignClient secondHalfFeignClient;
   
-  public ProcessService(FirstHalfRepository firstHalfRepository, RestClient restClient) {
+  public ProcessService(FirstHalfRepository firstHalfRepository, 
+      SecondHalfFeignClient secondHalfFeignClient) {
     this.firstHalfRepository = firstHalfRepository;
-    this.restClient = restClient;
+    this.secondHalfFeignClient = secondHalfFeignClient;
   }
 
   public String processValue(String value) {
@@ -36,20 +37,7 @@ public class ProcessService {
 
   private String getSecondHalf(String value) {
     var encodedValue = Encode.forUriComponent(value);
-    var uri = String.format("/lookup/%s", encodedValue);
 
-    String secondHalf = restClient.get()
-        .uri(uri)
-        .retrieve()
-        .onStatus(status -> status.value() == 404, (request, response) -> {
-          throw new RuntimeException("value found: " + encodedValue);
-        })
-        .body(String.class);
-
-    if (secondHalf == null) {
-       throw new RuntimeException("value found: " + encodedValue);
-    }
-
-    return secondHalf;
+    return secondHalfFeignClient.getLookup(encodedValue);
   }
 }
