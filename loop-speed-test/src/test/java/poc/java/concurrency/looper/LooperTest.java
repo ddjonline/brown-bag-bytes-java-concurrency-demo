@@ -1,12 +1,7 @@
 package poc.java.concurrency.looper;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.TestInstance;

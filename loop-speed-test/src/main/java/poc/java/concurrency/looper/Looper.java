@@ -3,7 +3,8 @@ package poc.java.concurrency.looper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Looper {
+public interface Looper {
+
 
 
   // This method iterates through a list of strings using a for-each loop.

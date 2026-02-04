@@ -2,7 +2,6 @@ package poc.java.concurrency.looper;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class Main {
@@ -27,7 +26,7 @@ public class Main {
 
   }
  
-  private static void runSequentialLoopers(List arrayListStrings, List linkedListStrings) {
+  private static void runSequentialLoopers(ArrayList<String> arrayListStrings, LinkedList<String> linkedListStrings) {
     System.out.println("--- Running benchmarks sequentially ---");
     Utils.timeTask("forLooper ArrayList", () -> Looper.forLooper(arrayListStrings));
     Utils.timeTask("spliteratorLooper ArrayList", () -> Looper.spliteratorLooper(arrayListStrings));
@@ -39,7 +38,7 @@ public class Main {
     Utils.timeTask("streamParallelLooper LinkedList", () -> Looper.streamParallelLooper(linkedListStrings));
   }
 
-  private static void runConcurrentLoopers(List arrayListStrings, List linkedListStrings) {
+  private static void runConcurrentLoopers(ArrayList<String> arrayListStrings, LinkedList<String> linkedListStrings) {
     System.out.println("\n--- Running benchmarks concurrently with Standard Thread Executor ---");
     try (ExecutorService stdExecutor = Utils.standardExecutor(THREAD_COUNT)) {
       stdExecutor.submit(() -> Utils.timeTask("forLooper ArrayList (Std Executor)", () -> Looper.forLooper(arrayListStrings)));
@@ -53,7 +52,7 @@ public class Main {
     }
   }
 
-  private static void runVirtualThreadLoopers(List arrayListStrings, List linkedListStrings) {
+  private static void runVirtualThreadLoopers(ArrayList<String> arrayListStrings, LinkedList<String> linkedListStrings) {
     System.out.println("\n--- Running benchmarks concurrently with Virtual Threads ---");
     try (ExecutorService vtExecutor = Utils.virtualThreadExecutor()) {
       vtExecutor.submit(() -> Utils.timeTask("forLooper ArrayList (VT)", () -> Looper.forLooper(arrayListStrings)));
