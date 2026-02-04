@@ -17,7 +17,7 @@ public class LooperTest {
     arrayListStrings = Utils.arrayListStrings(100000, 64);
     linkedListStrings = Utils.linkedListStrings(100000, 64);
 
-    System.out.println(String.format("Number of CPUs: %s", Runtime.getRuntime().availableProcessors()));
+    System.out.printf("Number of CPUs: %s%n", Runtime.getRuntime().availableProcessors());
   }
 
   // ArrayList Tests

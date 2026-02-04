@@ -16,7 +16,7 @@ public class Main {
     ArrayList<String> arrayListStrings = Utils.arrayListStrings(LIST_COUNT, CHARACTER_COUNT);
     LinkedList<String> linkedListStrings = Utils.linkedListStrings(LIST_COUNT, CHARACTER_COUNT);
     
-    System.out.println(String.format("Number of CPUs: %s", Runtime.getRuntime().availableProcessors()));
+    System.out.printf("Number of CPUs: %s%n", Runtime.getRuntime().availableProcessors());
 
     
     Utils.timeTask( "** sequential loopers total", () -> runSequentialLoopers(arrayListStrings, linkedListStrings));
